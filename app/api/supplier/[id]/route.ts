@@ -5,6 +5,7 @@ import {
   deleteSupplier,
 } from "@/services/supplierService";
 import { success, error } from "@/lib/response";
+import { editKaryawan } from "@/services/karyawanService";
 
 export async function GET(
   _: NextRequest,
@@ -19,22 +20,17 @@ export async function GET(
 }
 
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const id = parseInt(context.params.id);
   const body = await req.json();
 
-  await updateSupplier(Number(id), body);
-  return success("Supplier berhasil diperbarui");
-}
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = await params;
-
-  await deleteSupplier(Number(id));
-  return success("Supplier berhasil dihapus");
+  try {
+    const updated = await editKaryawan(id, body);
+    return success("Karyawan berhasil diperbarui", updated);
+  } catch (err: any) {
+    console.error("PUT error:", err);
+    return error(err.message || "Gagal memperbarui karyawan", 500);
+  }
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupplier, getSuppliers } from "@/services/supplierService";
+import { registerKaryawan } from "@/services/karyawanService";
+import { error, success } from "@/lib/response";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -32,11 +34,19 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const newSupplier = await createSupplier(body);
+  const { nama, email, password, role, kontak } = body;
 
-  return NextResponse.json({
-    status: "success",
-    message: "Supplier berhasil ditambahkan",
-    data: newSupplier,
-  });
+  try {
+    const newKaryawan = await registerKaryawan(
+      nama,
+      email,
+      password,
+      role,
+      kontak
+    );
+
+    return success("Karyawan berhasil ditambahkan", newKaryawan, 201);
+  } catch (err: any) {
+    return error(err.message, 400);
+  }
 }

@@ -44,8 +44,10 @@ export function LoginForm() {
       if (!res.ok) throw new Error("Login gagal");
 
       const data = await res.json();
-      dispatch(loginSuccess({ token: data.token, user: data.user }));
-      localStorage.setItem("token", data.token);
+      if (!data.success) throw new Error("Login gagal");
+
+      dispatch(loginSuccess(data.user));
+      localStorage.setItem("user", JSON.stringify(data.user));
       router.push("/dashboard");
     } catch (error) {
       console.error("Login Error:", error);

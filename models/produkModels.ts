@@ -33,8 +33,9 @@ export async function getProdukList({
   kategori?: string;
 }): Promise<ProdukRow[]> {
   const query = `
-    SELECT p.*, k.Nama_Kategori FROM Produk p
+    SELECT p.*, k.Nama_Kategori, s.Nama_Supplier FROM Produk p
     JOIN Kategori_Produk k ON p.ID_Kategori = k.ID_Kategori
+    JOIN Supplier s ON p.ID_Supplier = s.ID_Supplier
     WHERE p.Deleted_At IS NULL
     ${search ? "AND p.Nama_Produk LIKE ?" : ""}
     ${kategori ? "AND k.Nama_Kategori = ?" : ""}
@@ -75,7 +76,14 @@ export async function countProdukTotal(
 
 export async function getProdukById(id: number): Promise<ProdukRow | null> {
   const [rows] = await db.query<ProdukRow[]>(
-    `SELECT * FROM Produk WHERE ID_Produk = ? AND Deleted_At IS NULL`,
+    `SELECT 
+      p.*, 
+      k.Nama_Kategori, 
+      s.Nama_Supplier 
+    FROM Produk p
+    JOIN Kategori_Produk k ON p.ID_Kategori = k.ID_Kategori
+    JOIN Supplier s ON p.ID_Supplier = s.ID_Supplier
+    WHERE p.ID_Produk = ? AND p.Deleted_At IS NULL`,
     [id]
   );
   return rows[0] || null;

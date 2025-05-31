@@ -1,11 +1,8 @@
 import {
   Home,
-  Coffee,
   Package,
   Truck,
   BookOpen,
-  Users,
-  ShoppingCart,
   ClipboardCheck,
   FileClock,
   ListTodo,
@@ -22,11 +19,6 @@ export const navigationItems = [
 
 export const manajemenItems = [
   {
-    title: "Menu & Produk",
-    url: "/dashboard/products",
-    icon: Coffee,
-  },
-  {
     title: "Bahan Baku",
     url: "/dashboard/inventory",
     icon: Package,
@@ -41,19 +33,9 @@ export const manajemenItems = [
     url: "/dashboard/employees",
     icon: BookOpen,
   },
-  {
-    title: "Pelanggan",
-    url: "/dashboard/customers",
-    icon: Users,
-  },
 ];
 
 export const transaksiItems = [
-  {
-    title: "Transaksi Penjualan",
-    url: "/dashboard/sales",
-    icon: ShoppingCart,
-  },
   {
     title: "Pembelian Bahan",
     url: "/dashboard/purchases",

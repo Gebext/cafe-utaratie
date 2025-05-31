@@ -44,6 +44,7 @@ type Product = {
   Stok: number;
   ID_Supplier: number;
   Nama_Kategori: string;
+  Nama_Supplier: string;
 };
 
 type ProductDialogProps = {

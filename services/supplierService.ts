@@ -3,7 +3,7 @@ import {
   findSupplierById,
   insertSupplier,
   updateSupplierById,
-  softDeleteSupplierById, // pastikan ini ada di model
+  softDeleteSupplierById,
 } from "@/models/supplierModel";
 import {
   CreateSupplierInput,
@@ -14,9 +14,19 @@ import {
 export async function getSuppliers(
   page = 1,
   limit = 10,
-  search = ""
-): Promise<{ data: Supplier[]; total: number }> {
-  return await findSuppliers({ page, limit, search });
+  search = "",
+  filters: {
+    id_kategori?: number;
+    alamat?: string;
+    nomor_kontak?: string;
+  } = {}
+) {
+  return await findSuppliers({
+    page,
+    limit,
+    search,
+    ...filters,
+  });
 }
 
 export async function getSupplier(id: number): Promise<Supplier | null> {
@@ -25,7 +35,7 @@ export async function getSupplier(id: number): Promise<Supplier | null> {
 
 export async function createSupplier(
   data: CreateSupplierInput
-): Promise<number> {
+): Promise<Supplier & { Nama_Kategori: string | null }> {
   return await insertSupplier(data);
 }
 
@@ -36,7 +46,6 @@ export async function updateSupplier(
   await updateSupplierById(id, data);
 }
 
-// **Tambahkan fungsi deleteSupplier**
 export async function deleteSupplier(id: number): Promise<void> {
   await softDeleteSupplierById(id);
 }

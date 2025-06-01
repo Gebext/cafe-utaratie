@@ -13,6 +13,7 @@ export async function findSuppliers({
   id_kategori,
   alamat,
   nomor_kontak,
+  nama_kategori, // tambahan parameter
 }: {
   page: number;
   limit: number;
@@ -20,6 +21,7 @@ export async function findSuppliers({
   id_kategori?: number;
   alamat?: string;
   nomor_kontak?: string;
+  nama_kategori?: string; // tambahan tipe parameter
 }): Promise<{
   data: (Supplier & { Nama_Kategori: string | null })[];
   total: number;
@@ -49,6 +51,11 @@ export async function findSuppliers({
     values.push(`%${nomor_kontak}%`);
   }
 
+  if (nama_kategori) {
+    whereClauses.push("Kategori_Produk.Nama_Kategori LIKE ?");
+    values.push(`%${nama_kategori}%`);
+  }
+
   const whereSQL = whereClauses.length
     ? `WHERE ${whereClauses.join(" AND ")}`
     : "";
@@ -65,10 +72,15 @@ export async function findSuppliers({
   );
 
   // Query count total data tanpa limit dan offset, join tidak perlu untuk count
-  const [[{ count }]] = await db.query<RowDataPacket[]>(
-    `SELECT COUNT(*) as count FROM Supplier ${whereSQL}`,
-    values
-  );
+  // Tapi karena filter ada di Kategori_Produk, join tetap diperlukan di count juga
+  const countQuery = `
+    SELECT COUNT(*) as count
+    FROM Supplier
+    LEFT JOIN Kategori_Produk ON Supplier.ID_Kategori = Kategori_Produk.ID_Kategori
+    ${whereSQL}
+  `;
+
+  const [[{ count }]] = await db.query<RowDataPacket[]>(countQuery, values);
 
   return {
     data: rows as (Supplier & { Nama_Kategori: string | null })[],

@@ -2,6 +2,16 @@
 import { db } from "@/lib/db";
 import type { RowDataPacket } from "mysql2";
 
+export interface NewLaporanInput {
+  ID_Karyawan: number;
+  ID_Produk: number;
+  Tanggal_Laporan: string;
+  Jenis_Laporan: "Expired" | "Waste" | "Break";
+  Jumlah_Terbuang: number;
+  Alasan: string;
+  Status_Laporan: "Pending" | "Dikonfirmasi" | "Ditindaklanjuti";
+}
+
 interface ProdukPayload {
   Nama_Produk: string;
   ID_Kategori: number;
@@ -147,4 +157,18 @@ export async function deleteProduk(id: number): Promise<void> {
   await db.query(`UPDATE Produk SET Deleted_At = NOW() WHERE ID_Produk = ?`, [
     id,
   ]);
+}
+
+export function getInsertLaporanSQL() {
+  return `
+    INSERT INTO Laporan_Bahan_Baku (
+      ID_Karyawan,
+      ID_Produk,
+      Tanggal_Laporan,
+      Jenis_Laporan,
+      Jumlah_Terbuang,
+      Alasan,
+      Status_Laporan
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
 }

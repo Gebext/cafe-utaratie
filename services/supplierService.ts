@@ -19,6 +19,7 @@ export async function getSuppliers(
     id_kategori?: number;
     alamat?: string;
     nomor_kontak?: string;
+    nama_kategori?: string;
   } = {}
 ) {
   return await findSuppliers({

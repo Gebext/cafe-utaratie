@@ -63,3 +63,12 @@ export async function removeKaryawan(id: number) {
 export async function getKaryawanById(id: number) {
   return await model.getKaryawanById(id);
 }
+
+export async function listKaryawanWithPagination(filter: {
+  nama?: string;
+  role?: string;
+  limit: number;
+  offset: number;
+}) {
+  return await model.getAllKaryawanWithPagination(filter);
+}

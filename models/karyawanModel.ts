@@ -76,3 +76,39 @@ export async function getKaryawanById(id: number) {
   );
   return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 }
+
+export async function getAllKaryawanWithPagination(filter: {
+  nama?: string;
+  role?: string;
+  limit: number;
+  offset: number;
+}) {
+  let baseQuery = "FROM Karyawan WHERE Deleted_At IS NULL";
+  const params: any[] = [];
+
+  if (filter.nama) {
+    baseQuery += " AND Nama_Karyawan LIKE ?";
+    params.push(`%${filter.nama}%`);
+  }
+
+  if (filter.role) {
+    baseQuery += " AND Role = ?";
+    params.push(filter.role);
+  }
+
+  const [dataRows] = await db.query(`SELECT * ${baseQuery} LIMIT ? OFFSET ?`, [
+    ...params,
+    filter.limit,
+    filter.offset,
+  ]);
+
+  const [countRows]: any[] = await db.query(
+    `SELECT COUNT(*) as total ${baseQuery}`,
+    params
+  );
+
+  return {
+    data: dataRows,
+    total: countRows[0]?.total || 0,
+  };
+}

@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
       : undefined,
     alamat: searchParams.get("alamat") || undefined,
     nomor_kontak: searchParams.get("nomor_kontak") || undefined,
+    nama_kategori: searchParams.get("nama_kategori") || undefined, // <== ini yang kurang
   };
 
   const { data, total } = await getSuppliers(page, limit, search, filters);
@@ -33,20 +34,24 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { nama, email, password, role, kontak } = body;
-
   try {
-    const newKaryawan = await registerKaryawan(
-      nama,
-      email,
-      password,
-      role,
-      kontak
-    );
+    const body = await req.json();
 
-    return success("Karyawan berhasil ditambahkan", newKaryawan, 201);
+    // Bisa tambahkan validasi singkat di sini (optional)
+    const { Nama_Supplier, Alamat, Nomor_Kontak, ID_Kategori } = body;
+    if (!Nama_Supplier || !Alamat || !Nomor_Kontak || !ID_Kategori) {
+      return error("Semua field harus diisi", 400);
+    }
+
+    const newSupplier = await createSupplier({
+      Nama_Supplier,
+      Alamat,
+      Nomor_Kontak,
+      ID_Kategori,
+    });
+
+    return success("Supplier berhasil ditambahkan", newSupplier, 201);
   } catch (err: any) {
-    return error(err.message, 400);
+    return error(err.message || "Gagal menambahkan supplier", 400);
   }
 }

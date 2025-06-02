@@ -15,7 +15,8 @@ export async function GET(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
+  const param = await params;
+  const { id } = param;
   if (!isValidId(id)) return error("ID produk tidak valid", 400);
 
   try {
@@ -32,7 +33,8 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
+  const param = await params;
+  const { id } = param;
   if (!isValidId(id)) return error("ID produk tidak valid", 400);
 
   try {
@@ -59,7 +61,9 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
+  const param = await params;
+  const { id } = param;
+
   if (!isValidId(id)) return error("ID produk tidak valid", 400);
 
   try {

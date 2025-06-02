@@ -8,9 +8,10 @@ function isValidId(id: any): id is number {
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const id = parseInt(context.params.id, 10);
+  const param = await params;
+  const id = parseInt(param.id, 10);
   if (!isValidId(id)) return error("ID tidak valid", 400);
 
   try {
@@ -24,9 +25,10 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const id = parseInt(context.params.id, 10);
+  const param = await params;
+  const id = parseInt(param.id, 10);
   if (!isValidId(id)) return error("ID tidak valid", 400);
 
   const body = await req.json();
@@ -57,9 +59,10 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const id = parseInt(context.params.id, 10);
+  const param = await params;
+  const id = parseInt(param.id, 10);
   if (!isValidId(id)) return error("ID tidak valid", 400);
 
   try {

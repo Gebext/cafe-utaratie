@@ -15,7 +15,9 @@ export async function GET(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = Number(params.id);
+  const param = await params;
+
+  const id = Number(param.id);
   if (!isValidId(id)) return error("ID tidak valid", 400);
 
   const supplier = await getSupplier(id);
@@ -28,7 +30,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = Number(params.id);
+  const param = await params;
+
+  const id = Number(param.id);
   if (!isValidId(id)) return error("ID tidak valid", 400);
 
   const body = await req.json();
@@ -76,7 +80,8 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = Number(params.id);
+  const param = await params;
+  const id = Number(param.id);
   if (!isValidId(id)) return error("ID tidak valid", 400);
 
   const existingSupplier = await getSupplier(id);

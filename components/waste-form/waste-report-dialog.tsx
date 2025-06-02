@@ -442,38 +442,3 @@ export function WasteReportDialog({
     </Dialog>
   );
 }
-
-export default function WasteReportDialogDemo() {
-  const [open, setOpen] = useState(false);
-
-  const handleSubmit = (report: any) => {
-    console.log("Report submitted:", report);
-    // Handle form submission here
-  };
-
-  return (
-    <div className="p-8 space-y-4">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold">Waste Report Dialog Demo</h1>
-        <p className="text-muted-foreground">
-          Click the button below to open the waste report dialog
-        </p>
-      </div>
-
-      <div className="flex justify-center">
-        <Button
-          onClick={() => setOpen(true)}
-          className="bg-[#1e6091] hover:bg-[#1e6091]/90"
-        >
-          Open Waste Report Dialog
-        </Button>
-      </div>
-
-      <WasteReportDialog
-        open={open}
-        onOpenChange={setOpen}
-        onSubmit={handleSubmit}
-      />
-    </div>
-  );
-}

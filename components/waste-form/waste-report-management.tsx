@@ -41,7 +41,6 @@ import { WasteReportDialog } from "./waste-report-dialog";
 import { WasteReportChart } from "./waste-report-chart";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { DeleteWasteReportDialog } from "./delete-waste-report-dialog";
 import { WasteReportDetailDialog } from "./waste-report-detail-dialog";
 
 export interface WasteReport {
@@ -76,10 +75,6 @@ export function WasteReportManagement() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingReport, setEditingReport] = useState<WasteReport | null>(null);
-  const [deletingReport, setDeletingReport] = useState<WasteReport | null>(
-    null
-  );
   const [viewingReport, setViewingReport] = useState<WasteReport | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +92,7 @@ export function WasteReportManagement() {
     const fetchReports = async () => {
       try {
         setIsLoading(true);
-        let url = `${process.env.NEXT_PUBLIC_API}/api/laporan-bahan-baku?`;
+        let url = `/api/laporan-bahan-baku?`;
         const params = new URLSearchParams();
 
         if (selectedType !== "all") params.append("jenis", selectedType);
@@ -458,20 +453,6 @@ export function WasteReportManagement() {
                               onClick={() => setViewingReport(report)}
                             >
                               <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setEditingReport(report)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeletingReport(report)}
-                            >
-                              <Trash2 className="h-4 w-4 text-red-500" />
                             </Button>
                           </div>
                         </TableCell>

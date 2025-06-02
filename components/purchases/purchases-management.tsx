@@ -59,9 +59,7 @@ export function PurchaseManagement() {
           params.append("search", searchTerm);
         }
 
-        const url = `${
-          process.env.NEXT_PUBLIC_API
-        }/api/pembelian?${params.toString()}`;
+        const url = `/api/pembelian?${params.toString()}`;
         const response = await fetch(url);
 
         if (!response.ok) {

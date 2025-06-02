@@ -1,10 +1,10 @@
-// lib/laporanService.ts
 import { db } from "@/lib/db";
 import {
   buildFilterQueryWithJoin,
   LaporanBahanBakuJoin,
 } from "@/models/laporanModel";
-import { getInsertLaporanSQL, NewLaporanInput } from "@/models/produkModels";
+import { getInsertLaporanSQL } from "@/models/produkModels";
+import { NewLaporanInput } from "@/utils/types";
 
 type Filters = {
   jenis?: string;
@@ -14,31 +14,39 @@ type Filters = {
   offset: number;
 };
 
+/**
+ * Ambil laporan bahan baku dengan pagination dan filter menggunakan model query builder
+ */
 export async function getLaporanBahanBaku(filters: Filters) {
   const { selectSQL, countSQL, params } = buildFilterQueryWithJoin(filters);
 
-  // Query data dengan limit dan offset untuk pagination
-  const [data] = await db.query(`${selectSQL} LIMIT ? OFFSET ?`, [
-    ...params,
-    filters.limit,
-    filters.offset,
-  ]);
+  try {
+    const [data] = await db.query(`${selectSQL} LIMIT ? OFFSET ?`, [
+      ...params,
+      filters.limit,
+      filters.offset,
+    ]);
 
-  // Query total count data sesuai filter
-  const [countResult]: any = await db.query(countSQL, params);
+    const [countResult]: any = await db.query(countSQL, params);
 
-  return {
-    data: data as LaporanBahanBakuJoin[],
-    total: countResult[0].total,
-  };
+    return {
+      data: data as LaporanBahanBakuJoin[],
+      total: countResult?.[0]?.total || 0,
+    };
+  } catch (error) {
+    throw new Error("Gagal mengambil laporan bahan baku");
+  }
 }
 
+/**
+ * Buat laporan bahan baku baru dan update stok produk dalam transaksi
+ */
 export async function createLaporanBahanBaku(data: NewLaporanInput) {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
 
-    // 1. Insert laporan
+    // Insert laporan baru
     const insertSQL = getInsertLaporanSQL();
     const [result]: any = await conn.query(insertSQL, [
       data.ID_Karyawan,
@@ -49,10 +57,9 @@ export async function createLaporanBahanBaku(data: NewLaporanInput) {
       data.Alasan,
       data.Status_Laporan,
     ]);
-
     const insertedId = result.insertId;
 
-    // 2. Update stok produk
+    // Update stok produk, pastikan stok cukup
     const updateStokSQL = `
       UPDATE Produk
       SET Stok = Stok - ?
@@ -69,7 +76,7 @@ export async function createLaporanBahanBaku(data: NewLaporanInput) {
       );
     }
 
-    // 3. Ambil data lengkap dengan join
+    // Ambil data laporan lengkap dengan join untuk return
     const [joinedResult]: any = await conn.query(
       `
       SELECT 
@@ -93,7 +100,6 @@ export async function createLaporanBahanBaku(data: NewLaporanInput) {
     );
 
     await conn.commit();
-
     return joinedResult[0];
   } catch (error) {
     await conn.rollback();

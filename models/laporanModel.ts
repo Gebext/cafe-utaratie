@@ -1,5 +1,3 @@
-// models/laporanModel.ts
-
 export interface LaporanBahanBakuJoin {
   ID_Laporan: number;
   ID_Karyawan: number;
@@ -15,7 +13,7 @@ export interface LaporanBahanBakuJoin {
 }
 
 /**
- * Build dynamic SQL queries with optional filters, including JOIN to Karyawan and Produk.
+ * Bangun query SQL select dan count dengan filter dinamis untuk laporan bahan baku
  */
 export function buildFilterQueryWithJoin(filters: {
   jenis?: string;

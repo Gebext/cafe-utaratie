@@ -227,7 +227,7 @@ export function DashboardContent() {
           className="text-2xl font-bold mb-2"
           style={{ fontFamily: "Pirata One, cursive" }}
         >
-          Dashboard Caffe Urataie
+          Dashboard Caffe Utaratie
         </h1>
         <p className="opacity-90">
           Analisis data operasional restoran terapung

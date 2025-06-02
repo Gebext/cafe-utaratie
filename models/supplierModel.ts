@@ -6,6 +6,10 @@ import {
   Supplier,
 } from "@/utils/types";
 
+/**
+ * Cari daftar supplier dengan pagination dan filter.
+ * Mengembalikan data supplier beserta total count hasil pencarian.
+ */
 export async function findSuppliers({
   page,
   limit,
@@ -26,8 +30,10 @@ export async function findSuppliers({
   data: (Supplier & { Nama_Kategori: string | null })[];
   total: number;
 }> {
+  // Hitung offset berdasarkan page dan limit
   const offset = (page - 1) * limit;
 
+  // Kumpulkan kondisi WHERE dan nilai parameter query untuk filter dinamis
   const whereClauses = ["Supplier.Deleted_At IS NULL"];
   const values: any[] = [];
 
@@ -35,32 +41,29 @@ export async function findSuppliers({
     whereClauses.push("Supplier.Nama_Supplier LIKE ?");
     values.push(`%${search}%`);
   }
-
   if (id_kategori !== undefined) {
     whereClauses.push("Supplier.ID_Kategori = ?");
     values.push(id_kategori);
   }
-
   if (alamat) {
     whereClauses.push("Supplier.Alamat LIKE ?");
     values.push(`%${alamat}%`);
   }
-
   if (nomor_kontak) {
     whereClauses.push("Supplier.Nomor_Kontak LIKE ?");
     values.push(`%${nomor_kontak}%`);
   }
-
   if (nama_kategori) {
     whereClauses.push("Kategori_Produk.Nama_Kategori LIKE ?");
     values.push(`%${nama_kategori}%`);
   }
 
+  // Gabungkan semua kondisi WHERE menjadi string SQL
   const whereSQL = whereClauses.length
     ? `WHERE ${whereClauses.join(" AND ")}`
     : "";
 
-  // Query data dengan join ke Kategori_Produk untuk mendapatkan Nama_Kategori
+  // Query utama untuk ambil data supplier dan nama kategori terkait
   const [rows] = await db.query<RowDataPacket[]>(
     `SELECT Supplier.*, Kategori_Produk.Nama_Kategori
      FROM Supplier
@@ -71,8 +74,7 @@ export async function findSuppliers({
     [...values, limit, offset]
   );
 
-  // Query count total data tanpa limit dan offset, join tidak perlu untuk count
-  // Tapi karena filter ada di Kategori_Produk, join tetap diperlukan di count juga
+  // Query untuk hitung total data sesuai filter (tanpa limit & offset)
   const countQuery = `
     SELECT COUNT(*) as count
     FROM Supplier
@@ -88,6 +90,10 @@ export async function findSuppliers({
   };
 }
 
+/**
+ * Cari supplier berdasarkan ID, termasuk nama kategori.
+ * Mengembalikan objek supplier atau null jika tidak ditemukan.
+ */
 export async function findSupplierById(
   id: number
 ): Promise<(Supplier & { Nama_Kategori: string | null }) | null> {
@@ -103,6 +109,10 @@ export async function findSupplierById(
     : null;
 }
 
+/**
+ * Insert data supplier baru ke database.
+ * Mengembalikan data supplier yang baru dibuat beserta nama kategori.
+ */
 export async function insertSupplier(
   data: CreateSupplierInput
 ): Promise<Supplier & { Nama_Kategori: string | null }> {
@@ -114,7 +124,7 @@ export async function insertSupplier(
 
   const insertId = result.insertId;
 
-  // Query ulang supplier yang baru dibuat, termasuk join kategori
+  // Query ulang supplier yang baru dibuat agar lengkap dengan data kategori
   const [rows] = await db.query<RowDataPacket[]>(
     `SELECT Supplier.*, Kategori_Produk.Nama_Kategori
      FROM Supplier
@@ -126,6 +136,10 @@ export async function insertSupplier(
   return rows[0] as Supplier & { Nama_Kategori: string | null };
 }
 
+/**
+ * Update data supplier berdasarkan ID.
+ * Tidak mengembalikan apapun (void).
+ */
 export async function updateSupplierById(
   id: number,
   data: UpdateSupplierInput
@@ -137,9 +151,20 @@ export async function updateSupplierById(
   );
 }
 
+/**
+ * Soft delete supplier dengan mengisi kolom Deleted_At timestamp sekarang.
+ */
 export async function softDeleteSupplierById(id: number): Promise<void> {
   await db.query(
     `UPDATE Supplier SET Deleted_At = NOW() WHERE ID_Supplier = ?`,
     [id]
   );
+}
+
+export async function isNamaSupplierExist(nama: string) {
+  const [rows]: any[] = await db.query(
+    `SELECT ID_Supplier FROM Supplier WHERE Nama_Supplier = ? LIMIT 1`,
+    [nama]
+  );
+  return rows.length > 0;
 }

@@ -1,5 +1,6 @@
 import { db } from "../lib/db";
 
+//  Temukan karyawan berdasarkan email
 export async function findKaryawanByEmail(email: string) {
   const [rows] = await db.query(
     "SELECT * FROM Karyawan WHERE Email = ? AND Deleted_At IS NULL",
@@ -8,6 +9,7 @@ export async function findKaryawanByEmail(email: string) {
   return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 }
 
+//  Ambil semua karyawan (tanpa pagination)
 export async function getAllKaryawan(filter: { nama?: string; role?: string }) {
   let query = "SELECT * FROM Karyawan WHERE Deleted_At IS NULL";
   const params: any[] = [];
@@ -26,6 +28,7 @@ export async function getAllKaryawan(filter: { nama?: string; role?: string }) {
   return rows;
 }
 
+//  Buat karyawan baru
 export async function createKaryawan(
   nama: string,
   email: string,
@@ -39,6 +42,7 @@ export async function createKaryawan(
   );
 }
 
+//  Update karyawan berdasarkan ID
 export async function updateKaryawan(
   id: number,
   data: Partial<{
@@ -49,12 +53,12 @@ export async function updateKaryawan(
     Nomor_Kontak: string;
   }>
 ) {
+  if (Object.keys(data).length === 0) return;
+
   const fields = Object.keys(data)
     .map((key) => `${key} = ?`)
     .join(", ");
   const values = Object.values(data);
-
-  if (fields.length === 0) return;
 
   await db.query(`UPDATE Karyawan SET ${fields} WHERE ID_Karyawan = ?`, [
     ...values,
@@ -62,6 +66,7 @@ export async function updateKaryawan(
   ]);
 }
 
+//  Soft-delete karyawan
 export async function deleteKaryawan(id: number) {
   await db.query(
     `UPDATE Karyawan SET Deleted_At = NOW() WHERE ID_Karyawan = ?`,
@@ -69,6 +74,7 @@ export async function deleteKaryawan(id: number) {
   );
 }
 
+//  Ambil karyawan berdasarkan ID
 export async function getKaryawanById(id: number) {
   const [rows] = await db.query(
     "SELECT * FROM Karyawan WHERE ID_Karyawan = ? AND Deleted_At IS NULL",
@@ -77,6 +83,7 @@ export async function getKaryawanById(id: number) {
   return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 }
 
+//  Ambil semua karyawan dengan pagination
 export async function getAllKaryawanWithPagination(filter: {
   nama?: string;
   role?: string;

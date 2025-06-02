@@ -167,32 +167,6 @@ export function WasteReportManagement() {
     setIsAddDialogOpen(false);
   };
 
-  // Handle edit report (would connect to API in real implementation)
-  const handleEditReport = (
-    reportData: Omit<WasteReport, "ID_Laporan" | "Deleted_At">
-  ) => {
-    if (editingReport) {
-      setReports(
-        reports.map((r) =>
-          r.ID_Laporan === editingReport.ID_Laporan
-            ? { ...r, ...reportData }
-            : r
-        )
-      );
-      setEditingReport(null);
-    }
-  };
-
-  // Handle delete report (would connect to API in real implementation)
-  const handleDeleteReport = () => {
-    if (deletingReport) {
-      setReports(
-        reports.filter((r) => r.ID_Laporan !== deletingReport.ID_Laporan)
-      );
-      setDeletingReport(null);
-    }
-  };
-
   // Get status badge variant
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -516,24 +490,6 @@ export function WasteReportManagement() {
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSubmit={handleAddReport}
-        title="Buat Laporan Baru"
-        submitText="Buat Laporan"
-      />
-
-      <WasteReportDialog
-        open={!!editingReport}
-        onOpenChange={(open) => !open && setEditingReport(null)}
-        onSubmit={handleEditReport}
-        title="Edit Laporan"
-        submitText="Simpan Perubahan"
-        initialData={editingReport || undefined}
-      />
-
-      <DeleteWasteReportDialog
-        open={!!deletingReport}
-        onOpenChange={(open) => !open && setDeletingReport(null)}
-        onConfirm={handleDeleteReport}
-        reportId={deletingReport?.ID_Laporan || 0}
       />
 
       <WasteReportDetailDialog

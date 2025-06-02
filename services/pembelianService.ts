@@ -1,10 +1,12 @@
-import { getPembelianList } from "../models/pembelianModel";
+import { getPembelianList, PembelianFilters } from "@/models/pembelianModel";
 
-export async function fetchLaporanPembelian(query: any) {
-  const limit = parseInt(query.limit) || 10;
-  const offset = parseInt(query.offset) || 0;
+export async function fetchLaporanPembelian(
+  query: Partial<PembelianFilters> & { limit?: any; offset?: any }
+) {
+  const limit = parseInt(query.limit as string) || 10;
+  const offset = parseInt(query.offset as string) || 0;
 
-  const filters = {
+  const filters: PembelianFilters = {
     start_date: query.start_date,
     end_date: query.end_date,
     is_paid: query.is_paid,

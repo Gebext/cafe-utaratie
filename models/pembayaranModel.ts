@@ -1,5 +1,20 @@
 import { db } from "@/lib/db";
+import { RowDataPacket } from "mysql2";
 
+// Interface tipe data pembayaran
+export interface Pembayaran {
+  ID_Pembayaran: number;
+  Tanggal_Pembayaran: string;
+  Metode_Pembayaran: string;
+  Jumlah: number;
+  Nomor_Referensi: string;
+  ID_Pembelian: number;
+  Nama_Supplier: string;
+  Nama_Karyawan: string;
+  Nama_Produk: string;
+}
+
+// Fungsi model untuk mengambil data pembayaran dengan filter, limit, dan offset
 export async function getPembayaran({
   limit = 10,
   offset = 0,
@@ -54,9 +69,11 @@ export async function getPembayaran({
 
   const queryValues = [...values, limit, offset];
 
-  const [rows]: [any[], any] = await db.query(query, queryValues);
+  // Query untuk data utama, cast ke array Pembayaran
+  const [rows] = await db.query<RowDataPacket[]>(query, queryValues);
+  const pembayaranRows = rows as Pembayaran[];
 
-  // Get total count
+  // Query untuk total data, cast ke array objek yang punya properti total
   const countQuery = `
     SELECT COUNT(*) AS total
     FROM Pembayaran p
@@ -67,11 +84,13 @@ export async function getPembayaran({
     ${where}
   `;
 
-  const [countResult]: [any[], any] = await db.query(countQuery, values);
-  const total = countResult[0]?.total || 0;
+  const [countResult] = await db.query<RowDataPacket[]>(countQuery, values);
+  const countRows = countResult as Array<{ total: number }>;
+
+  const total = countRows[0]?.total ?? 0;
 
   return {
-    data: rows,
+    data: pembayaranRows,
     pagination: {
       total,
       limit,

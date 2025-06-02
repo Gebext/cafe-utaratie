@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 
-export async function getPembelianList(filters: {
+export interface PembelianFilters {
   start_date?: string;
   end_date?: string;
   is_paid?: string;
@@ -8,7 +8,9 @@ export async function getPembelianList(filters: {
   nama_produk?: string;
   limit: number;
   offset: number;
-}) {
+}
+
+export async function getPembelianList(filters: PembelianFilters) {
   const {
     start_date,
     end_date,
@@ -56,6 +58,7 @@ export async function getPembelianList(filters: {
     ORDER BY p.Tanggal_Pembelian ASC
     LIMIT ? OFFSET ?
   `;
+
   values.push(limit, offset);
 
   const [data] = await db.query(dataQuery, values);
@@ -68,8 +71,12 @@ export async function getPembelianList(filters: {
     JOIN Produk pr ON p.ID_Produk = pr.ID_Produk
     ${whereClause}
   `;
-  const [countRows] = await db.query(countQuery, values.slice(0, -2)); // exclude limit & offset
-  const total = (countRows as any)[0].total;
+
+  // Untuk count query, jangan bawa limit & offset
+  const countValues = values.slice(0, values.length - 2);
+
+  const [countRows] = await db.query(countQuery, countValues);
+  const total = (countRows as any)[0].total || 0;
 
   return {
     data,

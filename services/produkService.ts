@@ -1,41 +1,54 @@
 import {
-  findSuppliers,
-  findSupplierById,
-  insertSupplier,
-  updateSupplierById,
-  softDeleteSupplierById,
-} from "@/models/supplierModel";
-import {
-  CreateSupplierInput,
-  UpdateSupplierInput,
-  Supplier,
-} from "@/utils/types";
+  countProdukTotal,
+  createProduk,
+  deleteProduk,
+  getProdukById,
+  getProdukByName,
+  getProdukList,
+  updateProduk,
+} from "@/models/produkModels";
 
-export async function getSuppliers(
-  page = 1,
-  limit = 10,
-  search = ""
-): Promise<{ data: Supplier[]; total: number }> {
-  return await findSuppliers({ page, limit, search });
+export interface ProdukPayload {
+  Nama_Produk: string;
+  ID_Kategori: number;
+  Harga: number;
+  Stok: number;
+  ID_Supplier: number;
 }
+export const fetchProduk = async ({
+  limit,
+  offset,
+  search,
+  kategori,
+}: {
+  limit: number;
+  offset: number;
+  search?: string;
+  kategori?: string;
+}) => {
+  return await getProdukList({ limit, offset, search, kategori });
+};
 
-export async function getSupplier(id: number): Promise<Supplier | null> {
-  return await findSupplierById(id);
-}
+export const fetchProdukTotal = async (search = "", kategori = "") => {
+  return await countProdukTotal(search, kategori);
+};
 
-export async function createSupplier(
-  data: CreateSupplierInput
-): Promise<number> {
-  return await insertSupplier(data);
-}
+export const fetchProdukById = async (id: number) => {
+  return await getProdukById(id);
+};
 
-export async function updateSupplier(
-  id: number,
-  data: UpdateSupplierInput
-): Promise<void> {
-  await updateSupplierById(id, data);
-}
+export const fetchProdukByName = async (nama: string) => {
+  return await getProdukByName(nama);
+};
 
-export async function deleteSupplier(id: number): Promise<void> {
-  await softDeleteSupplierById(id);
-}
+export const addProduk = async (data: ProdukPayload) => {
+  return await createProduk(data);
+};
+
+export const editProduk = async (id: number, data: ProdukPayload) => {
+  return await updateProduk(id, data);
+};
+
+export const removeProduk = async (id: number) => {
+  return await deleteProduk(id);
+};

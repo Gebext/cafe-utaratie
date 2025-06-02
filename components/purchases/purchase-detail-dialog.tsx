@@ -83,7 +83,7 @@ export function PurchaseDetailDialog({
 
     try {
       setLoading(true);
-      const nomorReferensi = `INV-${Date.now()}`;
+      const nomorReferensi = `TRX-${Date.now()}`;
 
       const response = await fetch(
         `/api/pembelian/bayar/${purchase.ID_Pembelian}`,

@@ -65,7 +65,6 @@ export function PaymentTable({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Referensi</TableHead>
                     <TableHead>Produk</TableHead>
                     <TableHead>Penanggung Jawab</TableHead>
@@ -92,7 +91,6 @@ export function PaymentTable({
                       );
                       return (
                         <TableRow key={payment.ID_Pembayaran}>
-                          <TableCell>{payment.ID_Pembayaran}</TableCell>
                           <TableCell>
                             <div className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
                               {payment.Nomor_Referensi}

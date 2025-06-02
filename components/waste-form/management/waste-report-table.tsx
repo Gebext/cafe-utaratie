@@ -72,7 +72,6 @@ export function WasteReportTable({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Produk</TableHead>
                     <TableHead>Pelapor</TableHead>
                     <TableHead>Tanggal</TableHead>
@@ -95,7 +94,6 @@ export function WasteReportTable({
                   ) : (
                     reports.map((report) => (
                       <TableRow key={report.ID_Laporan}>
-                        <TableCell>{report.ID_Laporan}</TableCell>
                         <TableCell>
                           <div className="font-medium">
                             {report.Nama_Produk}

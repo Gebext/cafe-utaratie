@@ -126,3 +126,13 @@ export function getInsertLaporanSQL(): string {
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 }
+
+export async function increaseProductStock(productId: number, qty: number) {
+  const query = `
+    UPDATE Produk
+    SET Stok = Stok + ?
+    WHERE ID_Produk = ?
+  `;
+  const result = await db.query(query, [qty, productId]);
+  return result;
+}

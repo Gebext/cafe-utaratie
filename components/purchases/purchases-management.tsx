@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -34,61 +34,57 @@ export function PurchaseManagement() {
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [viewingPurchase, setViewingPurchase] = useState<Purchase | null>(null);
 
-  // Fetch data
-  useEffect(() => {
-    const fetchPurchases = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Refetch function (gunakan useCallback supaya tidak buat fungsi baru terus)
+  const fetchPurchases = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Build URL with filters and pagination
-        const params = new URLSearchParams();
+      const params = new URLSearchParams();
+      params.append("limit", limit.toString());
+      params.append("offset", offset.toString());
 
-        // Add pagination parameters
-        params.append("limit", limit.toString());
-        params.append("offset", offset.toString());
-
-        // Add filters
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value && value.trim() !== "") {
-            params.append(key, value);
-          }
-        });
-
-        // Add search term
-        if (searchTerm && searchTerm.trim() !== "") {
-          params.append("search", searchTerm);
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value.trim() !== "") {
+          params.append(key, value);
         }
+      });
 
-        const url = `/api/pembelian?${params.toString()}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result: ApiResponse = await response.json();
-
-        if (result.status === "success") {
-          setPurchases(result.data);
-          setTotal(result.pagination.total);
-        } else {
-          throw new Error(result.message || "Failed to fetch data");
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
-        console.error("API Error:", err);
-      } finally {
-        setLoading(false);
+      if (searchTerm && searchTerm.trim() !== "") {
+        params.append("search", searchTerm);
       }
-    };
 
-    fetchPurchases();
+      const url = `/api/pembelian?${params.toString()}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result: ApiResponse = await response.json();
+
+      if (result.status === "success") {
+        setPurchases(result.data);
+        setTotal(result.pagination.total);
+      } else {
+        throw new Error(result.message || "Failed to fetch data");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
+      console.error("API Error:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [filters, searchTerm, limit, offset]);
 
-  // Helper function to determine if a purchase is paid
+  // Fetch data on mount and on deps change
+  useEffect(() => {
+    fetchPurchases();
+  }, [fetchPurchases]);
+
+  // Helper to check if paid
   const isPurchasePaid = (purchase: Purchase): boolean => {
     if (typeof purchase.Is_Paid === "boolean") {
       return purchase.Is_Paid;
@@ -101,7 +97,7 @@ export function PurchaseManagement() {
     }
   };
 
-  // Calculate statistics (for current page data)
+  // Stats
   const totalAmount = purchases.reduce(
     (sum, purchase) => sum + Number.parseFloat(purchase.Total_Biaya),
     0
@@ -114,15 +110,14 @@ export function PurchaseManagement() {
       0
     );
 
-  // Handle pagination
+  // Handlers
   const handlePageChange = (newOffset: number) => {
     setOffset(newOffset);
   };
 
-  // Handle filter changes
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setOffset(0); // Reset to first page when filters change
+    setOffset(0);
   };
 
   const handleClearFilters = () => {
@@ -134,21 +129,18 @@ export function PurchaseManagement() {
       nama_produk: "",
     });
     setSearchTerm("");
-    setOffset(0); // Reset to first page when clearing filters
+    setOffset(0);
   };
 
-  // Handle search term change
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    setOffset(0); // Reset to first page when search changes
+    setOffset(0);
   };
 
-  // Handle purchase actions
   const handleAddPurchase = async (
     purchaseData: Omit<Purchase, "ID_Pembelian">
   ) => {
     try {
-      // Siapkan data dengan fallback dan formatting
       const preparedData = {
         ...purchaseData,
         Tanggal_Pembelian: format(
@@ -158,7 +150,7 @@ export function PurchaseManagement() {
         Is_Paid:
           typeof purchaseData.Is_Paid === "boolean"
             ? purchaseData.Is_Paid
-            : false, // Default jika undefined/null
+            : false,
       };
 
       const response = await fetch("/api/pembelian", {
@@ -175,8 +167,9 @@ export function PurchaseManagement() {
       const result = await response.json();
       const insertedPurchase: Purchase = result.data;
 
-      // Tambahkan pembelian baru ke awal daftar
-      setPurchases([insertedPurchase, ...purchases]);
+      // Reload list (refetch ulang)
+      await fetchPurchases();
+
       setIsAddDialogOpen(false);
       setOffset(0);
     } catch (error) {
@@ -188,6 +181,13 @@ export function PurchaseManagement() {
       );
     }
   };
+
+  // Ketika update detail selesai, refetch ulang data
+  const handleUpdatePurchase = async () => {
+    await fetchPurchases();
+    setViewingPurchase(null); // tutup dialog detail
+  };
+
   const handleViewDetail = (purchase: Purchase) => {
     setViewingPurchase(purchase);
   };
@@ -275,6 +275,7 @@ export function PurchaseManagement() {
         open={!!viewingPurchase}
         onOpenChange={(open) => !open && setViewingPurchase(null)}
         purchase={viewingPurchase}
+        onSuccess={handleUpdatePurchase} // refetch ulang saat sukses update
       />
     </div>
   );

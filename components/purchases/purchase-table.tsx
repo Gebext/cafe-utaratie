@@ -64,7 +64,6 @@ export function PurchaseTable({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Produk</TableHead>
                     <TableHead>Supplier</TableHead>
                     <TableHead>Pembeli</TableHead>
@@ -89,7 +88,6 @@ export function PurchaseTable({
                       const status = getPaymentStatusBadge(purchase.Is_Paid);
                       return (
                         <TableRow key={purchase.ID_Pembelian}>
-                          <TableCell>{purchase.ID_Pembelian}</TableCell>
                           <TableCell>
                             <div>
                               <div className="font-medium">

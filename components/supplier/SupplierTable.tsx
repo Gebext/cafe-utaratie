@@ -46,7 +46,6 @@ export function SupplierTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
             <TableHead>Nama Supplier</TableHead>
             <TableHead>Kategori</TableHead>
             <TableHead>Alamat</TableHead>
@@ -67,7 +66,6 @@ export function SupplierTable({
           ) : (
             suppliers.map((supplier) => (
               <TableRow key={supplier.ID_Supplier}>
-                <TableCell>{supplier.ID_Supplier}</TableCell>
                 <TableCell>
                   <div className="font-medium">{supplier.Nama_Supplier}</div>
                   {supplier.Nama_Supplier.includes("Baratie") && (

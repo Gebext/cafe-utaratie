@@ -82,7 +82,6 @@ export async function getPembelianList(filters: PembelianFilters) {
     ${whereClause}
   `;
 
-  // Untuk count query, jangan bawa limit & offset
   const countValues = values.slice(0, values.length - 2);
 
   const [countRows] = await db.query(countQuery, countValues);
@@ -175,9 +174,18 @@ export async function markPembelianAsPaid(id: number) {
 }
 
 export async function getPembelianForPayment(id: number) {
-  const [rows] = await db.query(
-    `SELECT ID_Pembelian, Tanggal_Pembelian, Total_Biaya FROM Pembelian WHERE ID_Pembelian = ?`,
-    [id]
-  );
+  const query = `
+    SELECT 
+      ID_Pembelian, 
+      ID_Produk, 
+      Jumlah AS Jumlah_Beli, 
+      Total_Biaya, 
+      Is_Paid
+    FROM Pembelian
+    WHERE ID_Pembelian = ?
+  `;
+
+  const [rows] = await db.query(query, [id]);
+
   return (rows as any[])[0] || null;
 }

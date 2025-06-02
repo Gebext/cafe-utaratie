@@ -63,6 +63,8 @@ export function PaymentDetailDialog({
     }
   };
 
+  const onBayar = () => {};
+
   // Format date with time
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("id-ID", {

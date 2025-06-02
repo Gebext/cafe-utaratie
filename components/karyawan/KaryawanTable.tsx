@@ -48,7 +48,6 @@ export function KaryawanTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Nama Karyawan</TableHead>
                 <TableHead>Posisi</TableHead>
                 <TableHead>Kontak</TableHead>

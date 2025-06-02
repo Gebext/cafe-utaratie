@@ -34,7 +34,6 @@ export function KaryawanTableRow({
 
   return (
     <TableRow>
-      <TableCell>{karyawan.ID_Karyawan}</TableCell>
       <TableCell className="font-medium">{karyawan.Nama_Karyawan}</TableCell>
       <TableCell>
         <Badge variant={getRoleBadgeVariant(karyawan.Role)}>

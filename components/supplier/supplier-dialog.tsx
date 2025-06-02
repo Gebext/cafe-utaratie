@@ -134,13 +134,18 @@ export function SupplierDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle
+            className="text-[#1e6091]"
+            style={{ fontFamily: "Pirata One, cursive" }}
+          >
+            {title}
+          </DialogTitle>
           <DialogDescription>
             Silahkan isi informasi supplier dengan lengkap.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="flex flex-col gap-1">
             <Label htmlFor="nama_supplier">Nama Supplier</Label>
             <Input
               id="nama_supplier"
@@ -152,7 +157,8 @@ export function SupplierDialog({
               autoFocus
             />
           </div>
-          <div>
+
+          <div className="flex flex-col gap-1">
             <Label htmlFor="alamat">Alamat</Label>
             <Textarea
               id="alamat"
@@ -164,7 +170,8 @@ export function SupplierDialog({
               rows={3}
             />
           </div>
-          <div>
+
+          <div className="flex flex-col gap-1">
             <Label htmlFor="nomor_kontak">Nomor Kontak</Label>
             <Input
               id="nomor_kontak"
@@ -177,7 +184,8 @@ export function SupplierDialog({
               required
             />
           </div>
-          <div>
+
+          <div className="flex flex-col gap-1">
             <Label htmlFor="kategori">Kategori</Label>
             <Select
               value={formData.ID_Kategori}
@@ -212,6 +220,7 @@ export function SupplierDialog({
               </SelectContent>
             </Select>
           </div>
+
           <DialogFooter>
             <Button type="submit" disabled={loadingCategories}>
               {submitText}

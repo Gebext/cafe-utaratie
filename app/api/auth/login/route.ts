@@ -5,8 +5,6 @@ import { loginUser } from "../../../../services/authService";
 export async function POST(req: Request) {
   const { email, password } = await req.json();
 
-  console.log(email, password);
-
   try {
     const { token, user } = await loginUser({ email, password });
 

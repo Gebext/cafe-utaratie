@@ -1,6 +1,7 @@
 "use client";
 
 import { LogOut, Anchor } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   Sidebar,
@@ -23,6 +24,8 @@ import {
 } from "@/src/constant/navigationItems";
 
 export function AppSidebar() {
+  const router = useRouter();
+
   return (
     <Sidebar className="border-r border-[#c9d6df]">
       <SidebarHeader className="border-b border-[#c9d6df] p-4">
@@ -118,8 +121,11 @@ export function AppSidebar() {
           className="flex items-center gap-2 text-sm text-[#1e6091] font-semibold"
           style={{ fontFamily: "Pirata One, cursive" }}
           onClick={() => {
-            // logout logic here
-            console.log("Logout clicked");
+            localStorage.removeItem("user");
+            document.cookie =
+              "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+            router.push("/");
           }}
         >
           <LogOut className="h-4 w-4" />

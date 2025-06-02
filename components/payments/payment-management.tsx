@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
@@ -104,7 +102,7 @@ export function PaymentManagement() {
   // Handle filter changes
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setOffset(0); // Reset to first page when filters change
+    setOffset(0);
   };
 
   const handleClearFilters = () => {
@@ -114,13 +112,12 @@ export function PaymentManagement() {
       referensi: "",
     });
     setSearchTerm("");
-    setOffset(0); // Reset to first page when clearing filters
+    setOffset(0);
   };
 
-  // Handle search term change
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    setOffset(0); // Reset to first page when search changes
+    setOffset(0);
   };
 
   // Handle payment actions
@@ -131,7 +128,6 @@ export function PaymentManagement() {
     };
     setPayments([newPayment, ...payments]);
     setIsAddDialogOpen(false);
-    // Refresh data to get updated pagination
     setOffset(0);
   };
 
@@ -154,14 +150,6 @@ export function PaymentManagement() {
             Kelola pembayaran dan transaksi keuangan
           </p>
         </div>
-        <Button
-          onClick={() => setIsAddDialogOpen(true)}
-          className="bg-[#1e6091] hover:bg-[#154c74]"
-          style={{ fontFamily: "Pirata One, cursive" }}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Pembayaran Baru
-        </Button>
       </div>
       {/* Stats Cards */}
       <PaymentStats

@@ -2,8 +2,6 @@ import jwt from "jsonwebtoken";
 
 const secret = process.env.JWT_SECRET;
 
-console.log("JWT_SECRET is:", secret);
-
 if (!secret) {
   throw new Error("JWT_SECRET is not defined in environment variables");
 }

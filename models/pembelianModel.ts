@@ -10,6 +10,16 @@ export interface PembelianFilters {
   offset: number;
 }
 
+export interface CreatePembelianInput {
+  ID_Supplier: number;
+  ID_Karyawan: number;
+  ID_Produk: number;
+  Tanggal_Pembelian: string;
+  Jumlah: number;
+  Total_Biaya: number;
+  Is_Paid?: boolean;
+}
+
 export async function getPembelianList(filters: PembelianFilters) {
   const {
     start_date,
@@ -82,4 +92,92 @@ export async function getPembelianList(filters: PembelianFilters) {
     data,
     total,
   };
+}
+
+export async function insertPembelian(input: CreatePembelianInput) {
+  const {
+    ID_Supplier,
+    ID_Karyawan,
+    ID_Produk,
+    Tanggal_Pembelian,
+    Jumlah,
+    Total_Biaya,
+    Is_Paid = false,
+  } = input;
+
+  const insertQuery = `
+    INSERT INTO Pembelian (
+      ID_Supplier,
+      ID_Karyawan,
+      ID_Produk,
+      Tanggal_Pembelian,
+      Jumlah,
+      Total_Biaya,
+      Is_Paid
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    ID_Supplier,
+    ID_Karyawan,
+    ID_Produk,
+    Tanggal_Pembelian,
+    Jumlah,
+    Total_Biaya,
+    Is_Paid ? 1 : 0,
+  ];
+
+  const [result]: any = await db.query(insertQuery, values);
+  return result.insertId;
+}
+
+export async function getPembelianById(id: number) {
+  const query = `
+    SELECT 
+      p.ID_Pembelian, p.Tanggal_Pembelian, p.Jumlah, p.Total_Biaya, p.Is_Paid,
+      s.ID_Supplier, s.Nama_Supplier,
+      k.ID_Karyawan, k.Nama_Karyawan,
+      pr.ID_Produk, pr.Nama_Produk
+    FROM Pembelian p
+    JOIN Supplier s ON p.ID_Supplier = s.ID_Supplier
+    JOIN Karyawan k ON p.ID_Karyawan = k.ID_Karyawan
+    JOIN Produk pr ON p.ID_Produk = pr.ID_Produk
+    WHERE p.ID_Pembelian = ?
+  `;
+
+  const [rows] = await db.query(query, [id]);
+  return (rows as any[])[0];
+}
+
+export async function getSupplierIdByProductId(id_produk: number) {
+  const [rows] = await db.query(
+    `SELECT ID_Supplier FROM Produk WHERE ID_Produk = ? LIMIT 1`,
+    [id_produk]
+  );
+  const result = (rows as any[])[0];
+  return result?.ID_Supplier || null;
+}
+
+export async function getProductDetailsById(id_produk: number) {
+  const [rows] = await db.query(
+    `SELECT ID_Supplier, Harga FROM Produk WHERE ID_Produk = ? LIMIT 1`,
+    [id_produk]
+  );
+  return (rows as any[])[0] || null;
+}
+
+export async function markPembelianAsPaid(id: number) {
+  const [result]: any = await db.query(
+    `UPDATE Pembelian SET Is_Paid = 1 WHERE ID_Pembelian = ? AND Is_Paid = 0`,
+    [id]
+  );
+  return result.affectedRows > 0;
+}
+
+export async function getPembelianForPayment(id: number) {
+  const [rows] = await db.query(
+    `SELECT ID_Pembelian, Tanggal_Pembelian, Total_Biaya FROM Pembelian WHERE ID_Pembelian = ?`,
+    [id]
+  );
+  return (rows as any[])[0] || null;
 }

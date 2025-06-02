@@ -19,7 +19,7 @@ export interface Supplier {
   Alamat: string;
   Nomor_Kontak: string;
   ID_Kategori?: number;
-  Deleted_at: number;
+  Deleted_at?: number;
 }
 
 export interface Category {

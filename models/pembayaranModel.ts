@@ -14,6 +14,14 @@ export interface Pembayaran {
   Nama_Produk: string;
 }
 
+export interface PembayaranPayload {
+  ID_Pembelian: number;
+  Tanggal_Pembayaran: string;
+  Metode_Pembayaran: "Tunai" | "Kartu Kredit" | "Transfer Bank";
+  Jumlah: number;
+  Nomor_Referensi?: string;
+}
+
 // Fungsi model untuk mengambil data pembayaran dengan filter, limit, dan offset
 export async function getPembayaran({
   limit = 10,
@@ -97,4 +105,28 @@ export async function getPembayaran({
       offset,
     },
   };
+}
+
+export async function insertPembayaran(data: PembayaranPayload) {
+  const {
+    ID_Pembelian,
+    Tanggal_Pembayaran,
+    Metode_Pembayaran,
+    Jumlah,
+    Nomor_Referensi,
+  } = data;
+
+  const [result]: any = await db.query(
+    `INSERT INTO Pembayaran (ID_Pembelian, Tanggal_Pembayaran, Metode_Pembayaran, Jumlah, Nomor_Referensi)
+     VALUES (?, ?, ?, ?, ?)`,
+    [
+      ID_Pembelian,
+      Tanggal_Pembayaran,
+      Metode_Pembayaran,
+      Jumlah,
+      Nomor_Referensi || null,
+    ]
+  );
+
+  return result.insertId;
 }

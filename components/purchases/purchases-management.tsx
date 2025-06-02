@@ -12,6 +12,7 @@ import { PurchaseDialog } from "./purchase-dialog";
 import { PurchaseDetailDialog } from "./purchase-detail-dialog";
 import type { Purchase, PurchaseFilters, ApiResponse } from "./types";
 import Pagination from "../ui/pagination";
+import { format } from "date-fns";
 
 export function PurchaseManagement() {
   // State
@@ -143,30 +144,50 @@ export function PurchaseManagement() {
   };
 
   // Handle purchase actions
-  const handleAddPurchase = (purchaseData: Omit<Purchase, "ID_Pembelian">) => {
-    const newPurchase: Purchase = {
-      ...purchaseData,
-      ID_Pembelian: Math.max(0, ...purchases.map((p) => p.ID_Pembelian)) + 1,
-    };
-    setPurchases([newPurchase, ...purchases]);
-    setIsAddDialogOpen(false);
-    // Refresh data to get updated pagination
-    setOffset(0);
-  };
+  const handleAddPurchase = async (
+    purchaseData: Omit<Purchase, "ID_Pembelian">
+  ) => {
+    try {
+      // Siapkan data dengan fallback dan formatting
+      const preparedData = {
+        ...purchaseData,
+        Tanggal_Pembelian: format(
+          new Date(purchaseData.Tanggal_Pembelian),
+          "yyyy-MM-dd"
+        ),
+        Is_Paid:
+          typeof purchaseData.Is_Paid === "boolean"
+            ? purchaseData.Is_Paid
+            : false, // Default jika undefined/null
+      };
 
-  const handleEditPurchase = (purchaseData: Omit<Purchase, "ID_Pembelian">) => {
-    if (editingPurchase) {
-      setPurchases(
-        purchases.map((p) =>
-          p.ID_Pembelian === editingPurchase.ID_Pembelian
-            ? { ...purchaseData, ID_Pembelian: editingPurchase.ID_Pembelian }
-            : p
-        )
+      const response = await fetch("/api/pembelian", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(preparedData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Gagal menambahkan pembelian");
+      }
+
+      const result = await response.json();
+      const insertedPurchase: Purchase = result.data;
+
+      // Tambahkan pembelian baru ke awal daftar
+      setPurchases([insertedPurchase, ...purchases]);
+      setIsAddDialogOpen(false);
+      setOffset(0);
+    } catch (error) {
+      console.error("POST /api/pembelian error:", error);
+      alert(
+        error instanceof Error
+          ? `Gagal menambahkan pembelian: ${error.message}`
+          : "Gagal menambahkan pembelian"
       );
-      setEditingPurchase(null);
     }
   };
-
   const handleViewDetail = (purchase: Purchase) => {
     setViewingPurchase(purchase);
   };
@@ -248,15 +269,6 @@ export function PurchaseManagement() {
         onSubmit={handleAddPurchase}
         title="Tambah Pembelian Baru"
         submitText="Tambah Pembelian"
-      />
-
-      <PurchaseDialog
-        open={!!editingPurchase}
-        onOpenChange={(open) => !open && setEditingPurchase(null)}
-        onSubmit={handleEditPurchase}
-        title="Edit Pembelian"
-        submitText="Simpan Perubahan"
-        initialData={editingPurchase || undefined}
       />
 
       <PurchaseDetailDialog

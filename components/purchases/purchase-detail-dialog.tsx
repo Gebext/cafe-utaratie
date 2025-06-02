@@ -53,9 +53,17 @@ export function PurchaseDetailDialog({
   const status = getPaymentStatusBadge(paidStatus);
 
   // Get One Piece themed descriptions
-  const getStatusDescription = (isPaid: number | string) => {
-    const paidStatus =
-      typeof isPaid === "string" ? Number.parseInt(isPaid) : isPaid;
+  const getStatusDescription = (isPaid: string | number | boolean) => {
+    let paidStatus: number;
+
+    if (typeof isPaid === "boolean") {
+      paidStatus = isPaid ? 1 : 0;
+    } else if (typeof isPaid === "string") {
+      paidStatus = Number.parseInt(isPaid);
+    } else {
+      paidStatus = isPaid;
+    }
+
     return paidStatus === 1
       ? "Pembayaran telah diselesaikan dengan sempurna"
       : "Masih ada hutang yang perlu diselesaikan dengan supplier";

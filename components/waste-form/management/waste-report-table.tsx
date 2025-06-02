@@ -18,24 +18,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import { WasteReport } from "./types";
 import {
   formatDate,
   getStatusBadgeVariant,
   getTypeBadgeVariant,
 } from "./utils";
-import { WasteReport } from "./types";
+import Pagination from "@/components/ui/pagination";
 
 interface WasteReportTableProps {
   reports: WasteReport[];
   isLoading: boolean;
+  offset: number;
+  limit: number;
+  total: number;
   onViewReport: (report: WasteReport) => void;
+  onPageChange: (offset: number) => void;
 }
 
 export function WasteReportTable({
   reports,
   isLoading,
+  offset,
+  limit,
+  total,
   onViewReport,
+  onPageChange,
 }: WasteReportTableProps) {
   return (
     <Card className="border-[#c9d6df]">
@@ -44,13 +52,13 @@ export function WasteReportTable({
           className="text-[#1e6091]"
           style={{ fontFamily: "Pirata One, cursive" }}
         >
-          Daftar Laporan ({reports.length})
+          Daftar Laporan ({total})
         </CardTitle>
         <CardDescription>
           Kelola semua laporan kehilangan bahan baku
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-[#1e6091]" />
@@ -59,77 +67,90 @@ export function WasteReportTable({
             </span>
           </div>
         ) : (
-          <div className="rounded-md border border-[#c9d6df]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Produk</TableHead>
-                  <TableHead>Pelapor</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Jenis</TableHead>
-                  <TableHead>Jumlah</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reports.length === 0 ? (
+          <>
+            <div className="rounded-md border border-[#c9d6df]">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell
-                      colSpan={8}
-                      className="text-center py-8 text-muted-foreground"
-                    >
-                      Tidak ada laporan yang ditemukan
-                    </TableCell>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Produk</TableHead>
+                    <TableHead>Pelapor</TableHead>
+                    <TableHead>Tanggal</TableHead>
+                    <TableHead>Jenis</TableHead>
+                    <TableHead>Jumlah</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
-                ) : (
-                  reports.map((report) => (
-                    <TableRow key={report.ID_Laporan}>
-                      <TableCell>{report.ID_Laporan}</TableCell>
-                      <TableCell>
-                        <div className="font-medium">{report.Nama_Produk}</div>
-                      </TableCell>
-                      <TableCell>{report.Nama_Karyawan}</TableCell>
-                      <TableCell>
-                        {formatDate(report.Tanggal_Laporan)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={getTypeBadgeVariant(report.Jenis_Laporan)}
-                        >
-                          {report.Jenis_Laporan}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium text-red-600">
-                          {report.Jumlah_Terbuang}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={getStatusBadgeVariant(report.Status_Laporan)}
-                        >
-                          {report.Status_Laporan}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onViewReport(report)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
+                </TableHeader>
+                <TableBody>
+                  {reports.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className="text-center py-8 text-muted-foreground"
+                      >
+                        Tidak ada laporan yang ditemukan
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    reports.map((report) => (
+                      <TableRow key={report.ID_Laporan}>
+                        <TableCell>{report.ID_Laporan}</TableCell>
+                        <TableCell>
+                          <div className="font-medium">
+                            {report.Nama_Produk}
+                          </div>
+                        </TableCell>
+                        <TableCell>{report.Nama_Karyawan}</TableCell>
+                        <TableCell>
+                          {formatDate(report.Tanggal_Laporan)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={getTypeBadgeVariant(report.Jenis_Laporan)}
+                          >
+                            {report.Jenis_Laporan}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-medium text-red-600">
+                            {report.Jumlah_Terbuang}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={getStatusBadgeVariant(
+                              report.Status_Laporan
+                            )}
+                          >
+                            {report.Status_Laporan}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onViewReport(report)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Pagination
+              offset={offset}
+              limit={limit}
+              total={total}
+              onPageChange={onPageChange}
+            />
+          </>
         )}
       </CardContent>
     </Card>

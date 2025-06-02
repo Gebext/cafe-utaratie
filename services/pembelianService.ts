@@ -1,4 +1,9 @@
-import { getPembelianList, PembelianFilters } from "@/models/pembelianModel";
+import {
+  CreatePembelianInput,
+  getPembelianList,
+  insertPembelian,
+  PembelianFilters,
+} from "@/models/pembelianModel";
 
 export async function fetchLaporanPembelian(
   query: Partial<PembelianFilters> & { limit?: any; offset?: any }
@@ -27,5 +32,15 @@ export async function fetchLaporanPembelian(
       limit,
       offset,
     },
+  };
+}
+
+export async function createPembelian(input: CreatePembelianInput) {
+  const insertId = await insertPembelian(input);
+
+  return {
+    status: "success",
+    message: "Data pembelian berhasil ditambahkan",
+    insertId,
   };
 }

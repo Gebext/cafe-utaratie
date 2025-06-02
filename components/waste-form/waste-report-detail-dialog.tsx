@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User, Package, AlertTriangle } from "lucide-react";
-import { WasteReport } from "./waste-report-management";
+import { WasteReport } from "./management/types";
 
 interface WasteReportDetailDialogProps {
   open: boolean;

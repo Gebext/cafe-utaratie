@@ -21,28 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface WasteReport {
-  ID_Karyawan: number;
-  Nama_Karyawan: string;
-  ID_Produk: number;
-  Nama_Produk: string;
-  Tanggal_Laporan: string;
-  Jenis_Laporan: "Expired" | "Waste" | "Break";
-  Jumlah_Terbuang: number;
-  Alasan: string;
-  Status_Laporan: "Pending" | "Dikonfirmasi" | "Ditindaklanjuti";
-}
-
-interface Karyawan {
-  ID_Karyawan: number;
-  Nama_Karyawan: string;
-}
-
-interface Produk {
-  ID_Produk: number;
-  Nama_Produk: string;
-}
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useKaryawan } from "./management/use-karyawan";
+import { useProduk } from "./management/use-product";
+import type { WasteReport } from "./management/types";
+import { format } from "date-fns";
 
 interface WasteReportDialogProps {
   open: boolean;
@@ -67,49 +51,35 @@ export function WasteReportDialog({
     Status_Laporan: "Pending" as "Pending" | "Dikonfirmasi" | "Ditindaklanjuti",
   });
 
-  const [karyawanList, setKaryawanList] = useState<Karyawan[]>([]);
-  const [produkList, setProdukList] = useState<Produk[]>([]);
+  const {
+    karyawanList,
+    isLoading: loadingKaryawan,
+    error: errorKaryawan,
+  } = useKaryawan();
+  const {
+    produkList,
+    isLoading: loadingProduk,
+    error: errorProduk,
+  } = useProduk();
 
-  const [loadingKaryawan, setLoadingKaryawan] = useState(false);
-  const [loadingProduk, setLoadingProduk] = useState(false);
-
+  // Reset form when dialog opens
   useEffect(() => {
-    if (!open) return;
-
-    setFormData((f) => ({
-      ...f,
-      ID_Karyawan: 0,
-      Nama_Karyawan: "",
-      ID_Produk: 0,
-      Nama_Produk: "",
-      Tanggal_Laporan: new Date().toISOString().split("T")[0],
-      Jenis_Laporan: "",
-      Jumlah_Terbuang: "",
-      Alasan: "",
-      Status_Laporan: "Pending",
-    }));
-
-    setLoadingKaryawan(true);
-    fetch("/api/karyawan")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setKaryawanList(data);
-        else setKaryawanList([]);
-      })
-      .catch(() => setKaryawanList([]))
-      .finally(() => setLoadingKaryawan(false));
-
-    setLoadingProduk(true);
-    fetch("/api/produk")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setProdukList(data);
-        else setProdukList([]);
-      })
-      .catch(() => setProdukList([]))
-      .finally(() => setLoadingProduk(false));
+    if (open) {
+      setFormData({
+        ID_Karyawan: 0,
+        Nama_Karyawan: "",
+        ID_Produk: 0,
+        Nama_Produk: "",
+        Tanggal_Laporan: new Date().toISOString().split("T")[0],
+        Jenis_Laporan: "",
+        Jumlah_Terbuang: "",
+        Alasan: "",
+        Status_Laporan: "Pending",
+      });
+    }
   }, [open]);
 
+  // Update ID when name changes
   useEffect(() => {
     if (!formData.Nama_Karyawan) {
       setFormData((f) => ({ ...f, ID_Karyawan: 0 }));
@@ -159,26 +129,12 @@ export function WasteReportDialog({
       Nama_Karyawan: formData.Nama_Karyawan,
       ID_Produk: formData.ID_Produk,
       Nama_Produk: formData.Nama_Produk,
-      Tanggal_Laporan: new Date(formData.Tanggal_Laporan).toISOString(),
+      Tanggal_Laporan: format(new Date(), "yyyy-MM-dd"),
       Jenis_Laporan: formData.Jenis_Laporan,
       Jumlah_Terbuang: Number(formData.Jumlah_Terbuang),
       Alasan: formData.Alasan,
       Status_Laporan: formData.Status_Laporan,
     });
-
-    setFormData({
-      ID_Karyawan: 0,
-      Nama_Karyawan: "",
-      ID_Produk: 0,
-      Nama_Produk: "",
-      Tanggal_Laporan: new Date().toISOString().split("T")[0],
-      Jenis_Laporan: "",
-      Jumlah_Terbuang: "",
-      Alasan: "",
-      Status_Laporan: "Pending",
-    });
-
-    onOpenChange(false);
   };
 
   return (
@@ -196,6 +152,17 @@ export function WasteReportDialog({
             ini.
           </DialogDescription>
         </DialogHeader>
+
+        {(errorKaryawan || errorProduk) && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {errorKaryawan && `Error loading employees: ${errorKaryawan}`}
+              {errorKaryawan && errorProduk && " | "}
+              {errorProduk && `Error loading products: ${errorProduk}`}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-6 py-2">
@@ -218,6 +185,7 @@ export function WasteReportDialog({
                       setFormData({ ...formData, Nama_Karyawan: value })
                     }
                     required
+                    disabled={loadingKaryawan}
                   >
                     <SelectTrigger className="h-11">
                       <SelectValue
@@ -229,7 +197,10 @@ export function WasteReportDialog({
                     <SelectContent>
                       {loadingKaryawan ? (
                         <SelectItem value="loading" disabled>
-                          Loading...
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Loading...
+                          </div>
                         </SelectItem>
                       ) : karyawanList.length > 0 ? (
                         karyawanList.map((k) => (
@@ -259,6 +230,7 @@ export function WasteReportDialog({
                       setFormData({ ...formData, Nama_Produk: value })
                     }
                     required
+                    disabled={loadingProduk}
                   >
                     <SelectTrigger className="h-11">
                       <SelectValue
@@ -270,7 +242,10 @@ export function WasteReportDialog({
                     <SelectContent>
                       {loadingProduk ? (
                         <SelectItem value="loading" disabled>
-                          Loading...
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Loading...
+                          </div>
                         </SelectItem>
                       ) : produkList.length > 0 ? (
                         produkList.map((p) => (
@@ -433,8 +408,16 @@ export function WasteReportDialog({
             <Button
               type="submit"
               className="flex-1 h-11 bg-[#1e6091] hover:bg-[#1e6091]/90"
+              disabled={loadingKaryawan || loadingProduk}
             >
-              Tambah Laporan
+              {loadingKaryawan || loadingProduk ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading...
+                </div>
+              ) : (
+                "Tambah Laporan"
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -1,4 +1,3 @@
-// Definisikan tipe parameter filter yang digunakan
 export interface GetPembayaranParams {
   limit?: number;
   offset?: number;

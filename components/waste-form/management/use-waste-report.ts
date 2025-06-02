@@ -1,42 +1,45 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  WasteReport,
-  WasteReportApiResponse,
-  WasteReportFilters,
-} from "./types";
+import { WasteReport, WasteReportApiResponse } from "./types";
 
-export function useWasteReports(
-  filters: Pick<
-    WasteReportFilters,
-    "selectedType" | "selectedStatus" | "selectedDate"
-  >
-) {
+interface UseWasteReportsParams {
+  selectedType: string;
+  selectedStatus: string;
+  selectedDate: string;
+  limit: number;
+  offset: number;
+}
+
+export function useWasteReports(params: UseWasteReportsParams) {
   const [reports, setReports] = useState<WasteReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     total: 0,
-    limit: 10,
-    offset: 0,
+    limit: params.limit,
+    offset: params.offset,
   });
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
         setIsLoading(true);
-        let url = `/api/laporan-bahan-baku?`;
-        const params = new URLSearchParams();
+        const searchParams = new URLSearchParams();
 
-        if (filters.selectedType !== "all")
-          params.append("jenis", filters.selectedType);
-        if (filters.selectedStatus !== "all")
-          params.append("status", filters.selectedStatus);
-        if (filters.selectedDate)
-          params.append("tanggal", filters.selectedDate);
+        // Add pagination parameters
+        searchParams.append("limit", params.limit.toString());
+        searchParams.append("offset", params.offset.toString());
 
-        url += params.toString();
+        // Add filter parameters
+        if (params.selectedType !== "all")
+          searchParams.append("jenis", params.selectedType);
+        if (params.selectedStatus !== "all")
+          searchParams.append("status", params.selectedStatus);
+        if (params.selectedDate)
+          searchParams.append("tanggal", params.selectedDate);
+
+        const url = `/api/laporan-bahan-baku?${searchParams.toString()}`;
 
         const response = await fetch(url);
 
@@ -64,17 +67,42 @@ export function useWasteReports(
     };
 
     fetchReports();
-  }, [filters.selectedType, filters.selectedStatus, filters.selectedDate]);
+  }, [
+    params.selectedType,
+    params.selectedStatus,
+    params.selectedDate,
+    params.limit,
+    params.offset,
+  ]);
 
-  const addReport = (
+  const addReport = async (
     reportData: Omit<WasteReport, "ID_Laporan" | "Deleted_At">
   ) => {
-    const newReport: WasteReport = {
-      ...reportData,
-      ID_Laporan: Math.max(0, ...reports.map((r) => r.ID_Laporan)) + 1,
-      Deleted_At: null,
-    };
-    setReports([...reports, newReport]);
+    try {
+      const response = await fetch("/api/laporan-bahan-baku", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gagal menambahkan laporan: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Tambahkan ke state hanya jika berhasil di server
+        setReports((prev) => [...prev, result.data]);
+      } else {
+        throw new Error(result.message || "Terjadi kesalahan saat menambahkan");
+      }
+    } catch (error) {
+      console.error("Error saat menambahkan laporan:", error);
+      setError(error instanceof Error ? error.message : "Unknown error");
+    }
   };
 
   return {

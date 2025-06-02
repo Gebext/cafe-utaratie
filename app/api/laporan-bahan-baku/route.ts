@@ -6,10 +6,15 @@ import {
 import { getKaryawanById } from "@/services/karyawanService";
 import { getProdukById } from "@/models/produkModels";
 
-export function isValidDate(dateStr: string) {
+// Helper function - NOT exported
+function isValidDate(dateStr: string) {
   const date = new Date(dateStr);
   return !isNaN(date.getTime());
 }
+
+// Allowed values extracted outside handlers
+const allowedJenis = ["Expired", "Waste", "Break"];
+const allowedStatus = ["Pending", "Dikonfirmasi", "Ditindaklanjuti"];
 
 export async function GET(req: NextRequest) {
   try {
@@ -85,7 +90,11 @@ export async function POST(req: NextRequest) {
       Status_Laporan,
     } = body;
 
-    if (isNaN(ID_Karyawan) || isNaN(ID_Produk)) {
+    const idKaryawanNum = Number(ID_Karyawan);
+    const idProdukNum = Number(ID_Produk);
+    const jumlahTerbuangNum = Number(Jumlah_Terbuang);
+
+    if (isNaN(idKaryawanNum) || isNaN(idProdukNum)) {
       return NextResponse.json(
         {
           status: "error",
@@ -96,7 +105,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validasi relasi
-    const karyawan = await getKaryawanById(ID_Karyawan);
+    const karyawan = await getKaryawanById(idKaryawanNum);
     if (!karyawan) {
       return NextResponse.json(
         { status: "error", message: "ID Karyawan tidak ditemukan" },
@@ -104,7 +113,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const produk = await getProdukById(ID_Produk);
+    const produk = await getProdukById(idProdukNum);
     if (!produk) {
       return NextResponse.json(
         { status: "error", message: "ID Produk tidak ditemukan" },
@@ -119,7 +128,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const allowedJenis = ["Expired", "Waste", "Break"];
     if (!allowedJenis.includes(Jenis_Laporan)) {
       return NextResponse.json(
         { status: "error", message: "Jenis laporan tidak valid" },
@@ -127,7 +135,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const allowedStatus = ["Pending", "Dikonfirmasi", "Ditindaklanjuti"];
     if (!allowedStatus.includes(Status_Laporan)) {
       return NextResponse.json(
         { status: "error", message: "Status laporan tidak valid" },
@@ -149,14 +156,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (isNaN(Jumlah_Terbuang) || Number(Jumlah_Terbuang) <= 0) {
+    if (isNaN(jumlahTerbuangNum) || jumlahTerbuangNum <= 0) {
       return NextResponse.json(
         { status: "error", message: "Jumlah terbuang harus lebih dari 0" },
         { status: 400 }
       );
     }
 
-    const laporan = await createLaporanBahanBaku(body);
+    // Create laporan with normalized data
+    const laporan = await createLaporanBahanBaku({
+      ID_Karyawan: idKaryawanNum,
+      ID_Produk: idProdukNum,
+      Tanggal_Laporan,
+      Jenis_Laporan,
+      Jumlah_Terbuang: jumlahTerbuangNum,
+      Alasan,
+      Status_Laporan,
+    });
 
     return NextResponse.json({
       status: "success",
@@ -164,6 +180,8 @@ export async function POST(req: NextRequest) {
       data: laporan,
     });
   } catch (err: any) {
+    console.error(err);
+
     return NextResponse.json(
       {
         status: "error",

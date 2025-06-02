@@ -36,3 +36,24 @@ export interface WasteReportStats {
   pendingReports: number;
   expiredItems: number;
 }
+
+export interface Karyawan {
+  ID_Karyawan: number;
+  Nama_Karyawan: string;
+}
+
+export interface Produk {
+  ID_Produk: number;
+  Nama_Produk: string;
+}
+
+export interface ApiResponse<T> {
+  status: string;
+  message: string;
+  data: T[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}

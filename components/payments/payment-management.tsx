@@ -135,19 +135,6 @@ export function PaymentManagement() {
     setOffset(0);
   };
 
-  const handleEditPayment = (paymentData: Omit<Payment, "ID_Pembayaran">) => {
-    if (editingPayment) {
-      setPayments(
-        payments.map((p) =>
-          p.ID_Pembayaran === editingPayment.ID_Pembayaran
-            ? { ...paymentData, ID_Pembayaran: editingPayment.ID_Pembayaran }
-            : p
-        )
-      );
-      setEditingPayment(null);
-    }
-  };
-
   const handleViewDetail = (payment: Payment) => {
     setViewingPayment(payment);
   };
@@ -218,21 +205,12 @@ export function PaymentManagement() {
         total={total}
         onPageChange={handlePageChange}
       />
-      ;{/* Dialogs */}
       <PaymentDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSubmit={handleAddPayment}
         title="Tambah Pembayaran Baru"
         submitText="Tambah Pembayaran"
-      />
-      <PaymentDialog
-        open={!!editingPayment}
-        onOpenChange={(open) => !open && setEditingPayment(null)}
-        onSubmit={handleEditPayment}
-        title="Edit Pembayaran"
-        submitText="Simpan Perubahan"
-        initialData={editingPayment || undefined}
       />
       <PaymentDetailDialog
         open={!!viewingPayment}

@@ -8,7 +8,7 @@ function isValidId(id: any): id is number {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const param = await params;
   const id = parseInt(param.id, 10);
@@ -25,7 +25,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const param = await params;
   const id = parseInt(param.id, 10);
@@ -59,7 +59,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const param = await params;
   const id = parseInt(param.id, 10);

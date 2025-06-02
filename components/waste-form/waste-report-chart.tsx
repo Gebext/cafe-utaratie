@@ -13,7 +13,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
-import type { WasteReport } from "./waste-report-management";
+import { WasteReport } from "./management/types";
 
 interface WasteReportChartProps {
   data: WasteReport[];

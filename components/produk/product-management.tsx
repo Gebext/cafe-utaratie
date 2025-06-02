@@ -16,6 +16,7 @@ type Product = {
   Stok: number;
   ID_Supplier: number;
   Nama_Kategori: string;
+  Nama_Supplier: string;
 };
 
 export default function ProductTable() {
@@ -32,6 +33,26 @@ export default function ProductTable() {
   // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editData, setEditData] = useState<Product | undefined>(undefined);
+
+  const deleteProduct = async (id: number) => {
+    try {
+      const res = await fetch(`/api/produk/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal menghapus produk");
+      }
+
+      const deleted = await res.json();
+
+      setProducts((prev) => prev.filter((p) => p.ID_Produk !== id));
+      setTotal((prev) => prev - 1);
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan saat menghapus produk.");
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -105,10 +126,9 @@ export default function ProductTable() {
           setIsDialogOpen(true);
         }}
         onDelete={(deletedProduct) => {
-          setProducts((prev) =>
-            prev.filter((p) => p.ID_Produk !== deletedProduct.ID_Produk)
-          );
-          setTotal((prev) => prev - 1);
+          if (deletedProduct?.ID_Produk) {
+            deleteProduct(deletedProduct.ID_Produk);
+          }
         }}
       />
 

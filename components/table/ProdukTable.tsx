@@ -1,4 +1,3 @@
-// components/TableCard.tsx
 import {
   Card,
   CardHeader,
@@ -32,6 +31,7 @@ type Product = {
   Stok: number;
   ID_Supplier: number;
   Nama_Kategori: string;
+  Nama_Supplier: string;
 };
 
 type Props = {
@@ -79,7 +79,7 @@ export default function TableCard({
                 <TableHead>Kategori</TableHead>
                 <TableHead>Harga</TableHead>
                 <TableHead>Stok</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Supplier</TableHead>
                 <TableHead className="text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -128,7 +128,7 @@ export default function TableCard({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="default">Aktif</Badge>
+                        <Badge variant="default">{product.Nama_Supplier}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

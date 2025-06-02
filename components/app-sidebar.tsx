@@ -20,7 +20,6 @@ import {
   navigationItems,
   manajemenItems,
   transaksiItems,
-  laporanItems,
 } from "@/src/constant/navigationItems";
 
 export function AppSidebar() {
@@ -100,29 +99,6 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {transaksiItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url} className="flex items-center gap-3">
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel
-            className="text-[#1e6091] font-semibold"
-            style={{ fontFamily: "Pirata One, cursive" }}
-          >
-            Laporan
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {laporanItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url} className="flex items-center gap-3">

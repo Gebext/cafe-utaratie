@@ -53,7 +53,7 @@ export async function getPembelianList(filters: {
     JOIN Karyawan k ON p.ID_Karyawan = k.ID_Karyawan
     JOIN Produk pr ON p.ID_Produk = pr.ID_Produk
     ${whereClause}
-    ORDER BY p.Tanggal_Pembelian DESC
+    ORDER BY p.Tanggal_Pembelian ASC
     LIMIT ? OFFSET ?
   `;
   values.push(limit, offset);

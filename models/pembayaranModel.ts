@@ -48,7 +48,7 @@ export async function getPembayaran({
     JOIN Karyawan k ON k.ID_Karyawan = pb.ID_Karyawan
     JOIN Produk pr ON pr.ID_Produk = pb.ID_Produk
     ${where}
-    ORDER BY p.Tanggal_Pembayaran DESC
+    ORDER BY p.Tanggal_Pembayaran ASC
     LIMIT ? OFFSET ?
   `;
 

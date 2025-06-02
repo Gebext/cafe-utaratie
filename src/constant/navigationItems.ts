@@ -7,6 +7,8 @@ import {
   FileClock,
   ListTodo,
   BarChart3,
+  ShoppingBag,
+  CreditCard,
 } from "lucide-react";
 
 export const navigationItems = [
@@ -37,31 +39,18 @@ export const manajemenItems = [
 
 export const transaksiItems = [
   {
-    title: "Pembelian Bahan",
+    title: "Pembelian",
     url: "/dashboard/purchases",
-    icon: ClipboardCheck,
+    icon: ShoppingBag,
+  },
+  {
+    title: "Pembayaran",
+    url: "/dashboard/payments",
+    icon: CreditCard,
   },
   {
     title: "Laporan Waste",
     url: "/dashboard/waste-report",
     icon: FileClock,
-  },
-];
-
-export const laporanItems = [
-  {
-    title: "Ringkasan Laporan",
-    url: "/dashboard/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "Detail Transaksi",
-    url: "/dashboard/report/transactions",
-    icon: ListTodo,
-  },
-  {
-    title: "Detail Pembelian",
-    url: "/dashboard/report/purchases",
-    icon: ClipboardCheck,
   },
 ];

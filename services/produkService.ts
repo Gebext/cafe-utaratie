@@ -3,7 +3,7 @@ import {
   findSupplierById,
   insertSupplier,
   updateSupplierById,
-  softDeleteSupplierById, // pastikan ini ada di model
+  softDeleteSupplierById,
 } from "@/models/supplierModel";
 import {
   CreateSupplierInput,
@@ -36,7 +36,6 @@ export async function updateSupplier(
   await updateSupplierById(id, data);
 }
 
-// **Tambahkan fungsi deleteSupplier**
 export async function deleteSupplier(id: number): Promise<void> {
   await softDeleteSupplierById(id);
 }

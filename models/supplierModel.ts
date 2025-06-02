@@ -13,7 +13,7 @@ export async function findSuppliers({
   id_kategori,
   alamat,
   nomor_kontak,
-  nama_kategori, // tambahan parameter
+  nama_kategori,
 }: {
   page: number;
   limit: number;
@@ -21,7 +21,7 @@ export async function findSuppliers({
   id_kategori?: number;
   alamat?: string;
   nomor_kontak?: string;
-  nama_kategori?: string; // tambahan tipe parameter
+  nama_kategori?: string;
 }): Promise<{
   data: (Supplier & { Nama_Kategori: string | null })[];
   total: number;
@@ -66,7 +66,7 @@ export async function findSuppliers({
      FROM Supplier
      LEFT JOIN Kategori_Produk ON Supplier.ID_Kategori = Kategori_Produk.ID_Kategori
      ${whereSQL}
-     ORDER BY Supplier.ID_Supplier DESC
+     ORDER BY Supplier.ID_Supplier ASC
      LIMIT ? OFFSET ?`,
     [...values, limit, offset]
   );

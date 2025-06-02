@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupplier, getSuppliers } from "@/services/supplierService";
-import { registerKaryawan } from "@/services/karyawanService";
 import { error, success } from "@/lib/response";
 
 export async function GET(req: NextRequest) {
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
       : undefined,
     alamat: searchParams.get("alamat") || undefined,
     nomor_kontak: searchParams.get("nomor_kontak") || undefined,
-    nama_kategori: searchParams.get("nama_kategori") || undefined, // <== ini yang kurang
+    nama_kategori: searchParams.get("nama_kategori") || undefined,
   };
 
   const { data, total } = await getSuppliers(page, limit, search, filters);

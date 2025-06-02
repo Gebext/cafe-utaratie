@@ -58,7 +58,9 @@ export function PaymentManagement() {
           params.append("search", searchTerm);
         }
 
-        const url = `http://localhost:3000/api/pembayaran?${params.toString()}`;
+        const url = `${
+          process.env.NEXT_PUBLIC_API
+        }/api/pembayaran?${params.toString()}`;
         const response = await fetch(url);
 
         if (!response.ok) {

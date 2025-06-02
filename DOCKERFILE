@@ -1,0 +1,70 @@
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+RUN npm config set registry https://registry.npmmirror.com/ --global
+WORKDIR /app
+
+# Install additional dependencies for compatibility
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  curl \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency files
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN npm cache clean --force && \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm i --legacy-peer-deps; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Rebuild the source code only when needed
+FROM base AS builder
+
+# Copy dependencies from the deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Disable telemetry during build
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Build the project
+RUN \
+  if [ -f yarn.lock ]; then yarn build; \
+  elif [ -f package-lock.json ]; then npm run build; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+  else echo "No lockfile found, exiting..." && exit 1; \
+  fi
+
+# Production image
+FROM base AS runner
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
+
+# Set working directory
+WORKDIR /app
+
+# Copy only necessary files for production
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Set permissions
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Command to run the application
+CMD ["node", "server.js

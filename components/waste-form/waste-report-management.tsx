@@ -97,7 +97,7 @@ export function WasteReportManagement() {
     const fetchReports = async () => {
       try {
         setIsLoading(true);
-        let url = "http://localhost:3000/api/laporan-bahan-baku?";
+        let url = `${process.env.NEXT_PUBLIC_API}/api/laporan-bahan-baku?`;
         const params = new URLSearchParams();
 
         if (selectedType !== "all") params.append("jenis", selectedType);

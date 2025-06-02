@@ -95,9 +95,11 @@ export function DashboardContent() {
         setError(null);
 
         const [purchasesRes, paymentsRes, wasteRes] = await Promise.all([
-          fetch("http://localhost:3000/api/pembelian?limit=1000"),
-          fetch("http://localhost:3000/api/pembayaran?limit=1000"),
-          fetch("http://localhost:3000/api/laporan-bahan-baku?limit=1000"),
+          fetch(`${process.env.NEXT_PUBLIC_API}/api/pembelian?limit=1000`),
+          fetch(`${process.env.NEXT_PUBLIC_API}/api/pembayaran?limit=1000`),
+          fetch(
+            `${process.env.NEXT_PUBLIC_API}/api/laporan-bahan-baku?limit=1000`
+          ),
         ]);
 
         if (!purchasesRes.ok || !paymentsRes.ok || !wasteRes.ok) {

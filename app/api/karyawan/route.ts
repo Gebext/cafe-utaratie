@@ -7,7 +7,7 @@ function isValidEmail(email: string) {
 }
 
 function isValidRole(role: string) {
-  return ["admin", "kasir"].includes(role.toLowerCase());
+  return ["chef", "manajer", "kasir", "pelayan"].includes(role.toLowerCase());
 }
 
 export async function GET(req: NextRequest) {
